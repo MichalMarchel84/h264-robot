@@ -4515,6 +4515,13 @@ var WSAvcPlayer = new Class({
     this.ws.send("STOPSTREAM");
     log("Sent STOPSTREAM");
   },
+
+  sendMessage : function(message) {
+    if (this?.ws !== undefined) {
+      console.log(message);
+      this.ws.send(message);
+    }
+  }
 });
 
 

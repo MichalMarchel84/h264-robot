@@ -152,6 +152,12 @@ var WSAvcPlayer = new Class({
     this.ws.send("STOPSTREAM");
     log("Sent STOPSTREAM");
   },
+
+  sendMessage : function(message) {
+    if (this?.ws !== undefined) {
+      this.ws.send(message);
+    }
+  }
 });
 
 
