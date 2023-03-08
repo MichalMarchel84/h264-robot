@@ -3,6 +3,10 @@ const decrementFactor = 40;
 const incrementFactor = 50;
 const keysDown = [];
 let service;
+let lightChanged = true;
+let light = 0;
+const lightAlterationFactor = 20;
+const turnFactor = decrementFactor + (incrementFactor - decrementFactor)/2;
 
 function decrement(value) {
     let result = 0;
@@ -36,6 +40,16 @@ function getTrimmedValue(val) {
     }
 }
 
+function alterLight(dir) {
+    light += dir * lightAlterationFactor;
+    if (light > 255) {
+        light = 255;
+    } else if (light < 0) {
+        light = 0;
+    }
+    lightChanged = true;
+}
+
 function resolveKey(key) {
     switch (key) {
         case "w":
@@ -47,12 +61,29 @@ function resolveKey(key) {
             motorSettings[1] -= incrementFactor;
             break;
         case "a":
-            motorSettings[0] -= incrementFactor;
-            motorSettings[1] += incrementFactor;
+            if ((motorSettings[0] < 0) && (motorSettings[1] < 0)) {
+                motorSettings[0] += turnFactor
+                motorSettings[1] -= turnFactor
+            } else {
+                motorSettings[0] -= turnFactor
+                motorSettings[1] += turnFactor
+            }
             break;
         case "d":
-            motorSettings[0] += incrementFactor;
-            motorSettings[1] -= incrementFactor;
+            if ((motorSettings[0] < 0) && (motorSettings[1] < 0)) {
+                motorSettings[0] -= turnFactor
+                motorSettings[1] += turnFactor
+            } else {
+                motorSettings[0] += turnFactor
+                motorSettings[1] -= turnFactor
+            }
+            break;
+            break;
+        case "[":
+            alterLight(-1);
+            break;
+        case "]":
+            alterLight(1);
             break;
     };
 }
@@ -61,7 +92,12 @@ function sendSettings() {
     keysDown.forEach((key) => resolveKey(key));
     motorSettings[0] = getTrimmedValue(motorSettings[0]);
     motorSettings[1] = getTrimmedValue(motorSettings[1]);
-    service.sendMessage(JSON.stringify(motorSettings));
+    if (lightChanged) {
+        lightChanged = false;
+        service.sendMessage(JSON.stringify([...motorSettings, light]));
+    } else {
+        service.sendMessage(JSON.stringify(motorSettings));
+    }
     motorSettings[0] = decrement(motorSettings[0]);
     motorSettings[1] = decrement(motorSettings[1]);
 }
