@@ -4393,7 +4393,6 @@ var WSAvcPlayer = new Class({
     //WebSocket variable
     this.ws;
     this.pktnum = 0;
-
   },
 
 
@@ -4497,7 +4496,10 @@ var WSAvcPlayer = new Class({
       this.initCanvas(cmd.width, cmd.height);
       this.canvas.width  = cmd.width;
       this.canvas.height = cmd.height;
-    }
+    } else if (cmd.action == "picture") {
+      window.open(document.location + "/picture.jpg", '_blank');
+      this.playStream();
+    } 
   },
 
   disconnect : function() {
@@ -4505,20 +4507,16 @@ var WSAvcPlayer = new Class({
   },
 
   playStream : function() {
-    var message = "REQUESTSTREAM ";
-    this.ws.send(message);
-    log("Sent " + message);
+    this.ws.send("REQUESTSTREAM");
   },
 
 
-  stopStream : function() {
-    this.ws.send("STOPSTREAM");
-    log("Sent STOPSTREAM");
+  capture : function() {
+    this.ws.send("CAPTURE");
   },
 
   sendMessage : function(message) {
     if (this?.ws !== undefined) {
-      console.log(message);
       this.ws.send(message);
     }
   }

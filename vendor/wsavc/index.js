@@ -30,7 +30,6 @@ var WSAvcPlayer = new Class({
     //WebSocket variable
     this.ws;
     this.pktnum = 0;
-
   },
 
 
@@ -73,9 +72,10 @@ var WSAvcPlayer = new Class({
     var framesList = [];
 
     this.ws.onmessage = (evt) => {
-      if(typeof evt.data == "string")
+      if(typeof evt.data == "string") {
         return this.cmd(JSON.parse(evt.data));
-
+      }
+      
       this.pktnum++;
       var frame = new Uint8Array(evt.data);
       //log("[Pkt " + this.pktnum + " (" + evt.data.byteLength + " bytes)]");
@@ -134,7 +134,10 @@ var WSAvcPlayer = new Class({
       this.initCanvas(cmd.width, cmd.height);
       this.canvas.width  = cmd.width;
       this.canvas.height = cmd.height;
-    }
+    } else if (cmd.action == "picture") {
+      window.open(document.location + "/picture.jpg", '_blank');
+      this.playStream();
+    } 
   },
 
   disconnect : function() {
@@ -142,15 +145,12 @@ var WSAvcPlayer = new Class({
   },
 
   playStream : function() {
-    var message = "REQUESTSTREAM ";
-    this.ws.send(message);
-    log("Sent " + message);
+    this.ws.send("REQUESTSTREAM");
   },
 
 
-  stopStream : function() {
-    this.ws.send("STOPSTREAM");
-    log("Sent STOPSTREAM");
+  capture : function() {
+    this.ws.send("CAPTURE");
   },
 
   sendMessage : function(message) {
